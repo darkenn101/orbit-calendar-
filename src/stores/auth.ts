@@ -43,11 +43,19 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  let _authReady: Promise<void> | null = null
+
   const initAuth = () => {
-    onAuthStateChanged(auth, (authUser) => {
-      user.value = authUser
-      loading.value = false
-    })
+    if (!_authReady) {
+      _authReady = new Promise<void>((resolve) => {
+        onAuthStateChanged(auth, (authUser) => {
+          user.value = authUser
+          loading.value = false
+          resolve()
+        })
+      })
+    }
+    return _authReady
   }
 
   return {

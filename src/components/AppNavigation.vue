@@ -16,20 +16,34 @@
           class="nav-link"
           :class="{ 'nav-link-active': $route.name === 'Dashboard' }"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
+          <Squares2X2Icon class="w-5 h-5" />
           Dashboard
         </RouterLink>
         
+        <RouterLink
+          to="/reminders"
+          class="nav-link"
+          :class="{ 'nav-link-active': $route.name === 'Reminders' }"
+        >
+          <BellIcon class="w-5 h-5" />
+          Reminders
+        </RouterLink>
+        
+        <RouterLink
+          to="/notes"
+          class="nav-link"
+          :class="{ 'nav-link-active': $route.name === 'Notes' }"
+        >
+          <DocumentTextIcon class="w-5 h-5" />
+          Notes
+        </RouterLink>
+
         <RouterLink
           to="/calendar"
           class="nav-link"
           :class="{ 'nav-link-active': $route.name === 'Calendar' }"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
+          <CalendarIcon class="w-5 h-5" />
           Calendar
         </RouterLink>
       </div>
@@ -54,9 +68,7 @@
             class="text-gray-400 hover:text-gray-600 transition-colors"
             title="Sign out"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+            <ArrowRightOnRectangleIcon class="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -68,6 +80,7 @@
 import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { Squares2X2Icon, BellIcon, DocumentTextIcon, CalendarIcon, ArrowRightOnRectangleIcon } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
 const authStore = useAuthStore()

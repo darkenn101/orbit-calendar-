@@ -16,9 +16,7 @@
               @click="previousMonth"
               class="p-2 hover:bg-gray-100 rounded-md transition-colors"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
+              <ChevronLeftIcon class="w-5 h-5" />
             </button>
             <h2 class="text-xl font-semibold text-gray-900">
               {{ format(currentDate, 'MMMM yyyy') }}
@@ -27,9 +25,7 @@
               @click="nextMonth"
               class="p-2 hover:bg-gray-100 rounded-md transition-colors"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
+              <ChevronRightIcon class="w-5 h-5" />
             </button>
           </div>
           
@@ -94,6 +90,15 @@
               >
                 {{ task.title }}
               </div>
+              <!-- Reminders for this day -->
+              <div
+                v-for="reminder in getRemindersForDate(day.date)"
+                :key="`reminder-${reminder.id}`"
+                class="p-1 rounded text-xs truncate cursor-default bg-purple-100 text-purple-800 border border-purple-200"
+                :title="`Reminder: ${reminder.title}${reminder.description ? ' - ' + reminder.description : ''}`"
+              >
+                🔔 {{ reminder.title }}
+              </div>
             </div>
           </div>
         </div>
@@ -107,9 +112,7 @@
         class="bg-primary-500 hover:bg-primary-600 text-white rounded-full p-4 shadow-lg transition-colors"
         :title="`Add task for ${format(selectedDate, 'MMM d, yyyy')}`"
       >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
+        <PlusIcon class="w-6 h-6" />
       </button>
     </div>
 
@@ -126,7 +129,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { 
+import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@heroicons/vue/24/outline'
+import {
   format,
   startOfMonth,
   endOfMonth,
@@ -136,14 +140,17 @@ import {
   isSameMonth,
   isToday,
   isSameDay,
+  startOfDay,
   addMonths,
   subMonths
 } from 'date-fns'
 import { useTaskStore } from '@/stores/tasks'
+import { useReminderStore } from '@/stores/reminders'
 import TaskModal from '@/components/TaskModal.vue'
 import type { Task } from '@/types'
 
 const taskStore = useTaskStore()
+const reminderStore = useReminderStore()
 
 const currentDate = ref(new Date())
 const selectedDate = ref<Date | null>(null)
@@ -152,14 +159,16 @@ const editingTask = ref<Task | null>(null)
 
 let unsubscribe: (() => void) | undefined = undefined
 
+let unsubscribeReminders: (() => void) | undefined = undefined
+
 onMounted(() => {
   unsubscribe = taskStore.loadTasks()
+  unsubscribeReminders = reminderStore.loadReminders()
 })
 
 onUnmounted(() => {
-  if (unsubscribe) {
-    unsubscribe()
-  }
+  if (unsubscribe) unsubscribe()
+  if (unsubscribeReminders) unsubscribeReminders()
 })
 
 const calendarDays = computed(() => {
@@ -181,6 +190,23 @@ const getTasksForDate = (date: Date) => {
   return taskStore.tasks.filter(task => {
     const taskDate = task.due_date.toDate()
     return isSameDay(taskDate, date)
+  })
+}
+
+const getRemindersForDate = (date: Date) => {
+  const dayStart = startOfDay(date)
+  return reminderStore.reminders.filter(reminder => {
+    if (reminder.status !== 'active') return false
+    const start = reminder.start_date ? startOfDay(reminder.start_date.toDate()) : undefined
+    const end = reminder.end_date ? startOfDay(reminder.end_date.toDate()) : undefined
+    if (start && end) {
+      return dayStart >= start && dayStart <= end
+    } else if (start) {
+      return isSameDay(dayStart, start)
+    } else if (end) {
+      return isSameDay(dayStart, end)
+    }
+    return false
   })
 }
 
