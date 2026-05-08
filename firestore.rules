@@ -20,9 +20,17 @@ service cloud.firestore {
     
     // Users can only access their own notes
     match /notes/{document} {
-      allow read, write: if request.auth != null && 
+      allow read, write: if request.auth != null &&
         request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && 
+      allow create: if request.auth != null &&
+        request.auth.uid == request.resource.data.userId;
+    }
+
+    // Users can only access their own projects
+    match /projects/{document} {
+      allow read, write: if request.auth != null &&
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null &&
         request.auth.uid == request.resource.data.userId;
     }
   }

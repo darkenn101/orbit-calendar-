@@ -3,8 +3,24 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-surface: 249 250 251;     /* gray-50  */
+    --color-elevated: 255 255 255;    /* white    */
+    --color-ink: 17 24 39;            /* gray-900 */
+    --color-ink-muted: 75 85 99;      /* gray-600 */
+    --color-line: 229 231 235;        /* gray-200 */
+  }
+
+  .dark {
+    --color-surface: 17 24 39;        /* gray-900 */
+    --color-elevated: 31 41 55;       /* gray-800 */
+    --color-ink: 243 244 246;         /* gray-100 */
+    --color-ink-muted: 156 163 175;   /* gray-400 */
+    --color-line: 55 65 81;           /* gray-700 */
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-surface text-ink;
   }
 }
 
@@ -12,16 +28,18 @@
   .btn-primary {
     @apply bg-primary-500 hover:bg-primary-600 text-white font-medium py-2 px-4 rounded-lg transition-colors;
   }
-  
+
   .btn-secondary {
-    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors;
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors
+           dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100;
   }
-  
+
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200;
+    @apply bg-elevated rounded-lg shadow-sm border border-line;
   }
-  
+
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply w-full px-3 py-2 bg-elevated text-ink border border-line rounded-lg
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
   }
 }

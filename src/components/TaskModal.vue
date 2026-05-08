@@ -47,7 +47,21 @@
             class="input"
           />
         </div>
-        
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Project
+          </label>
+          <ProjectPicker v-model="form.projectId" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Tags
+          </label>
+          <TagInput v-model="form.tags" placeholder="Type a tag and press Enter" />
+        </div>
+
         <div v-if="task">
           <label for="status" class="block text-sm font-medium text-gray-700 mb-1">
             Status
@@ -98,10 +112,13 @@ import { ref, reactive, onMounted } from 'vue'
 import { Timestamp } from 'firebase/firestore'
 import { format } from 'date-fns'
 import type { Task } from '@/types'
+import ProjectPicker from '@/components/ProjectPicker.vue'
+import TagInput from '@/components/TagInput.vue'
 
 const props = defineProps<{
   task?: Task | null
   defaultDate?: Date | null
+  defaultProjectId?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -116,7 +133,9 @@ const form = reactive({
   title: '',
   description: '',
   due_date: '',
-  status: 'pending' as 'pending' | 'completed'
+  status: 'pending' as 'pending' | 'completed',
+  projectId: null as string | null,
+  tags: [] as string[],
 })
 
 onMounted(() => {
@@ -125,6 +144,8 @@ onMounted(() => {
     form.description = props.task.description
     form.due_date = format(props.task.due_date.toDate(), "yyyy-MM-dd'T'HH:mm")
     form.status = props.task.status
+    form.projectId = props.task.projectId ?? null
+    form.tags = [...(props.task.tags ?? [])]
   } else {
     // Set default due date to selected date or tomorrow
     const defaultDate = props.defaultDate || new Date()
@@ -133,6 +154,7 @@ onMounted(() => {
     }
     defaultDate.setHours(9, 0, 0, 0)
     form.due_date = format(defaultDate, "yyyy-MM-dd'T'HH:mm")
+    form.projectId = props.defaultProjectId ?? null
   }
 })
 
@@ -146,7 +168,9 @@ const handleSubmit = async () => {
       title: form.title.trim(),
       description: form.description.trim(),
       due_date: Timestamp.fromDate(dueDate),
-      status: form.status
+      status: form.status,
+      projectId: form.projectId,
+      tags: form.tags,
     }
 
     emit('save', taskData)

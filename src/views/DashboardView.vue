@@ -93,6 +93,56 @@
       </button>
     </div>
 
+    <!-- Project filter pills -->
+    <div class="mb-6 flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        class="px-3 py-1 rounded-full text-sm border transition-colors"
+        :class="projectFilter === 'all'
+          ? 'bg-primary-500 text-white border-primary-500'
+          : 'bg-elevated text-gray-700 border-line hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700'"
+        @click="projectFilter = 'all'"
+      >
+        All ({{ taskStore.tasks.length }})
+      </button>
+      <button
+        type="button"
+        class="px-3 py-1 rounded-full text-sm border transition-colors inline-flex items-center gap-1.5"
+        :class="projectFilter === 'inbox'
+          ? 'bg-primary-500 text-white border-primary-500'
+          : 'bg-elevated text-gray-700 border-line hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700'"
+        @click="projectFilter = 'inbox'"
+      >
+        <InboxIcon class="w-4 h-4" />
+        <span>Inbox ({{ inboxCount }})</span>
+      </button>
+      <div
+        v-for="project in projectStore.projects"
+        :key="project.id"
+        class="rounded-full text-sm border transition-colors inline-flex items-center gap-1.5 overflow-hidden"
+        :class="projectFilter === project.id
+          ? 'bg-primary-500 text-white border-primary-500'
+          : 'bg-elevated text-gray-700 border-line hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700'"
+      >
+        <button
+          type="button"
+          class="pl-3 py-1 inline-flex items-center gap-1.5"
+          @click="projectFilter = project.id ?? 'all'"
+        >
+          <span class="w-2 h-2 rounded-full" :class="projectColorClasses[project.color]" />
+          <span>{{ project.name }} ({{ projectCounts[project.id ?? ''] ?? 0 }})</span>
+        </button>
+        <button
+          type="button"
+          class="pr-2.5 py-1 opacity-60 hover:opacity-100"
+          :title="`Delete project '${project.name}' and its tasks`"
+          @click.stop="confirmDeleteProject(project.id!, project.name)"
+        >
+          <XMarkIcon class="w-3 h-3" />
+        </button>
+      </div>
+    </div>
+
     <!-- Content Sections -->
     <div class="space-y-6">
       <!-- Current Reminders -->
@@ -121,18 +171,18 @@
       <div class="card">
         <div class="px-4 py-5 sm:p-6">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Pending Tasks</h3>
-          
+
           <div v-if="taskStore.loading" class="text-center py-4">
             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mx-auto"></div>
           </div>
-          
-          <div v-else-if="taskStore.pendingTasks.length === 0" class="text-gray-500 text-center py-8">
-            No pending tasks. Great job! 🎉
+
+          <div v-else-if="filteredPendingTasks.length === 0" class="text-gray-500 text-center py-8">
+            No pending tasks here. Great job! 🎉
           </div>
-          
+
           <div v-else class="space-y-3">
             <TaskItem
-              v-for="task in taskStore.pendingTasks"
+              v-for="task in filteredPendingTasks"
               :key="task.id"
               :task="task"
               @edit="editTask"
@@ -144,12 +194,12 @@
       </div>
 
       <!-- Completed Tasks -->
-      <div v-if="taskStore.completedTasks.length > 0" class="card">
+      <div v-if="filteredCompletedTasks.length > 0" class="card">
         <div class="px-4 py-5 sm:p-6">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Completed Tasks</h3>
           <div class="space-y-3">
             <TaskItem
-              v-for="task in taskStore.completedTasks"
+              v-for="task in filteredCompletedTasks"
               :key="task.id"
               :task="task"
               @edit="editTask"
@@ -189,6 +239,7 @@
     <TaskModal
       v-if="showAddTask || editingTask"
       :task="editingTask"
+      :default-project-id="newTaskDefaultProjectId"
       @close="closeTaskModal"
       @save="saveTask"
     />
@@ -204,30 +255,69 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useTaskStore } from '@/stores/tasks'
 import { useReminderStore } from '@/stores/reminders'
+import { useProjectStore } from '@/stores/projects'
 import TaskItem from '@/components/TaskItem.vue'
 import TaskModal from '@/components/TaskModal.vue'
 import ReminderItem from '@/components/ReminderItem.vue'
 import ReminderModal from '@/components/ReminderModal.vue'
 import type { Task, Reminder } from '@/types'
-import { ClockIcon, CheckIcon, InformationCircleIcon, ExclamationTriangleIcon, PlusIcon } from '@heroicons/vue/20/solid'
+import { projectColorClasses } from '@/utils/projectColors'
+import { ClockIcon, CheckIcon, InformationCircleIcon, ExclamationTriangleIcon, PlusIcon, XMarkIcon } from '@heroicons/vue/20/solid'
+import { InboxIcon } from '@heroicons/vue/24/outline'
 
 const taskStore = useTaskStore()
 const reminderStore = useReminderStore()
+const projectStore = useProjectStore()
 
 const showAddTask = ref(false)
 const editingTask = ref<Task | null>(null)
 const showAddReminder = ref(false)
 const editingReminder = ref<Reminder | null>(null)
 
+type ProjectFilter = 'all' | 'inbox' | string
+const projectFilter = ref<ProjectFilter>('all')
+
+const matchesFilter = (task: Task) => {
+  if (projectFilter.value === 'all') return true
+  if (projectFilter.value === 'inbox') return !task.projectId
+  return task.projectId === projectFilter.value
+}
+
+const filteredPendingTasks = computed(() => taskStore.pendingTasks.filter(matchesFilter))
+const filteredCompletedTasks = computed(() => taskStore.completedTasks.filter(matchesFilter))
+
+const newTaskDefaultProjectId = computed(() =>
+  projectFilter.value === 'all' || projectFilter.value === 'inbox' ? null : projectFilter.value,
+)
+
+const inboxCount = computed(() => taskStore.tasks.filter((t) => !t.projectId).length)
+const projectCounts = computed(() => {
+  const counts: Record<string, number> = {}
+  for (const t of taskStore.tasks) if (t.projectId) counts[t.projectId] = (counts[t.projectId] ?? 0) + 1
+  return counts
+})
+
+const confirmDeleteProject = async (projectId: string, name: string) => {
+  const taskCount = projectCounts.value[projectId] ?? 0
+  const message = taskCount > 0
+    ? `Delete project "${name}" and its ${taskCount} task${taskCount === 1 ? '' : 's'}? This cannot be undone.`
+    : `Delete project "${name}"?`
+  if (!confirm(message)) return
+  await projectStore.deleteProject(projectId)
+  if (projectFilter.value === projectId) projectFilter.value = 'all'
+}
+
 let taskUnsubscribe: (() => void) | undefined = undefined
 let reminderUnsubscribe: (() => void) | undefined = undefined
+let projectUnsubscribe: (() => void) | undefined = undefined
 
 onMounted(() => {
   taskUnsubscribe = taskStore.loadTasks()
   reminderUnsubscribe = reminderStore.loadReminders()
+  projectUnsubscribe = projectStore.loadProjects()
 })
 
 onUnmounted(() => {
@@ -236,6 +326,9 @@ onUnmounted(() => {
   }
   if (reminderUnsubscribe) {
     reminderUnsubscribe()
+  }
+  if (projectUnsubscribe) {
+    projectUnsubscribe()
   }
 })
 

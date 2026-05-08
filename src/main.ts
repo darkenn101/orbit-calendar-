@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
+import { registerSW } from './registerSW'
 import './assets/styles/main.css'
 
 const pinia = createPinia()
@@ -11,3 +12,5 @@ app.use(pinia)
 app.use(router)
 
 app.mount('#app')
+
+registerSW()

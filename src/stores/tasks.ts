@@ -51,10 +51,15 @@ export const useTaskStore = defineStore('tasks', () => {
     )
 
     return onSnapshot(q, (snapshot) => {
-      tasks.value = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Task[]
+      tasks.value = snapshot.docs.map(doc => {
+        const data = doc.data() as Partial<Task>
+        return {
+          id: doc.id,
+          tags: [],
+          projectId: null,
+          ...data,
+        } as Task
+      })
       loading.value = false
     })
   }

@@ -25,14 +25,20 @@
     <!-- Task Content -->
     <div class="flex-1 min-w-0">
       <div class="flex items-center justify-between">
-        <h4 
-          class="text-sm font-medium text-gray-900 truncate"
+        <h4
+          class="text-sm font-medium text-gray-900 truncate flex items-center gap-2"
           :class="{ 'line-through text-gray-500': task.status === 'completed' }"
         >
-          {{ task.title }}
+          <span
+            v-if="project"
+            class="w-2 h-2 rounded-full flex-shrink-0"
+            :class="projectColorClasses[project.color]"
+            :title="project.name"
+          />
+          <span class="truncate">{{ task.title }}</span>
         </h4>
         <div class="flex items-center space-x-2">
-          <span 
+          <span
             class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
             :class="dueDateStyle"
           >
@@ -41,12 +47,22 @@
           <ReminderBadge v-if="isUpcoming" />
         </div>
       </div>
-      <p 
+      <p
+        v-if="task.description"
         class="mt-1 text-sm text-gray-500"
         :class="{ 'line-through': task.status === 'completed' }"
       >
         {{ task.description }}
       </p>
+      <div v-if="task.tags && task.tags.length > 0" class="mt-2 flex flex-wrap gap-1">
+        <span
+          v-for="tag in task.tags"
+          :key="tag"
+          class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-700 dark:bg-primary-700/30 dark:text-primary-50"
+        >
+          #{{ tag }}
+        </span>
+      </div>
     </div>
 
     <!-- Actions -->
@@ -76,10 +92,17 @@ import { computed } from 'vue'
 import { format, isToday, isTomorrow, isPast } from 'date-fns'
 import type { Task } from '@/types'
 import ReminderBadge from '@/components/ReminderBadge.vue'
+import { useProjectStore } from '@/stores/projects'
+import { projectColorClasses } from '@/utils/projectColors'
 
 const props = defineProps<{
   task: Task
 }>()
+
+const projectStore = useProjectStore()
+const project = computed(() =>
+  props.task.projectId ? projectStore.projectsById[props.task.projectId] ?? null : null,
+)
 
 const emit = defineEmits<{
   edit: [task: Task]
