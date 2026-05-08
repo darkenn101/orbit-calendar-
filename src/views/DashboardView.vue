@@ -188,6 +188,7 @@
               @edit="editTask"
               @delete="deleteTask"
               @toggle="toggleTask"
+              @toggle-subtask="toggleSubtask"
             />
           </div>
         </div>
@@ -345,6 +346,10 @@ const deleteTask = async (taskId: string) => {
 
 const toggleTask = async (taskId: string) => {
   await taskStore.toggleTaskStatus(taskId)
+}
+
+const toggleSubtask = async (taskId: string, subtaskId: string) => {
+  await taskStore.toggleSubtask(taskId, subtaskId)
 }
 
 const closeTaskModal = () => {

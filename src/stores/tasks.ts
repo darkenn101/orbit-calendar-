@@ -57,6 +57,7 @@ export const useTaskStore = defineStore('tasks', () => {
           id: doc.id,
           tags: [],
           projectId: null,
+          subtasks: [],
           ...data,
         } as Task
       })
@@ -113,6 +114,16 @@ export const useTaskStore = defineStore('tasks', () => {
     return updateTask(taskId, { status: newStatus })
   }
 
+  const toggleSubtask = async (taskId: string, subtaskId: string) => {
+    const task = tasks.value.find(t => t.id === taskId)
+    if (!task) return
+
+    const updated = (task.subtasks ?? []).map(s =>
+      s.id === subtaskId ? { ...s, done: !s.done } : s,
+    )
+    return updateTask(taskId, { subtasks: updated })
+  }
+
   return {
     tasks,
     loading,
@@ -123,6 +134,7 @@ export const useTaskStore = defineStore('tasks', () => {
     addTask,
     updateTask,
     deleteTask,
-    toggleTaskStatus
+    toggleTaskStatus,
+    toggleSubtask,
   }
 })

@@ -1,5 +1,11 @@
 import { Timestamp } from 'firebase/firestore'
 
+export interface Subtask {
+  id: string
+  text: string
+  done: boolean
+}
+
 export interface Task {
   id?: string
   title: string
@@ -8,6 +14,7 @@ export interface Task {
   status: 'pending' | 'completed'
   projectId?: string | null
   tags: string[]
+  subtasks: Subtask[]
   userId: string
   createdAt: Timestamp
   updatedAt: Timestamp
