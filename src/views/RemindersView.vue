@@ -1,8 +1,8 @@
 <template>
   <div class="p-6">
     <div class="mb-6">
-      <h1 class="text-2xl font-semibold text-gray-900">Reminders</h1>
-      <p class="mt-1 text-sm text-gray-600">
+      <h1 class="text-2xl font-semibold text-ink">Reminders</h1>
+      <p class="mt-1 text-sm text-ink-muted">
         Manage your reminders and set time-based alerts
       </p>
     </div>
@@ -12,14 +12,14 @@
       <div class="card p-6">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <InformationCircleIcon class="w-4 h-4 text-blue-600" />
+            <div class="w-8 h-8 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center">
+              <InformationCircleIcon class="w-4 h-4 text-blue-600 dark:text-blue-300" />
             </div>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Upcoming Reminders</dt>
-              <dd class="text-lg font-medium text-gray-900">{{ reminderStore.activeReminders.length }}</dd>
+              <dt class="text-sm font-medium text-ink-subtle truncate">Upcoming Reminders</dt>
+              <dd class="text-lg font-medium text-ink">{{ reminderStore.activeReminders.length }}</dd>
             </dl>
           </div>
         </div>
@@ -28,14 +28,14 @@
       <div class="card p-6">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckIcon class="w-4 h-4 text-green-600" />
+            <div class="w-8 h-8 bg-green-100 dark:bg-green-500/20 rounded-full flex items-center justify-center">
+              <CheckIcon class="w-4 h-4 text-green-600 dark:text-green-300" />
             </div>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Completed</dt>
-              <dd class="text-lg font-medium text-gray-900">{{ reminderStore.completedReminders.length }}</dd>
+              <dt class="text-sm font-medium text-ink-subtle truncate">Completed</dt>
+              <dd class="text-lg font-medium text-ink">{{ reminderStore.completedReminders.length }}</dd>
             </dl>
           </div>
         </div>
@@ -44,14 +44,14 @@
       <div class="card p-6">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-              <ExclamationTriangleIcon class="w-4 h-4 text-red-600" />
+            <div class="w-8 h-8 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center">
+              <ExclamationTriangleIcon class="w-4 h-4 text-red-600 dark:text-red-300" />
             </div>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Active</dt>
-              <dd class="text-lg font-medium text-gray-900">{{ reminderStore.currentReminders.length }}</dd>
+              <dt class="text-sm font-medium text-ink-subtle truncate">Active</dt>
+              <dd class="text-lg font-medium text-ink">{{ reminderStore.currentReminders.length }}</dd>
             </dl>
           </div>
         </div>
@@ -74,8 +74,8 @@
       <!-- Current Reminders -->
       <div v-if="reminderStore.currentReminders.length > 0" class="card">
         <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-            <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+          <h3 class="text-lg font-medium text-ink mb-4 flex items-center gap-2">
+            <div class="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full animate-pulse"></div>
             Active Reminders
           </h3>
           <div class="space-y-3">
@@ -96,13 +96,13 @@
       <!-- All Active Reminders -->
       <div class="card">
         <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">All Upcoming Reminders</h3>
+          <h3 class="text-lg font-medium text-ink mb-4">All Upcoming Reminders</h3>
           
           <div v-if="reminderStore.loading" class="text-center py-4">
             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mx-auto"></div>
           </div>
           
-          <div v-else-if="reminderStore.activeReminders.length === 0" class="text-gray-500 text-center py-8">
+          <div v-else-if="reminderStore.activeReminders.length === 0" class="text-ink-subtle text-center py-8">
             No upcoming reminders. Create one to get started! 📝
           </div>
           
@@ -124,7 +124,7 @@
       <!-- Completed Reminders -->
       <div v-if="reminderStore.completedReminders.length > 0" class="card">
         <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Completed Reminders</h3>
+          <h3 class="text-lg font-medium text-ink mb-4">Completed Reminders</h3>
           <div class="space-y-3">
             <ReminderItem
               v-for="reminder in reminderStore.completedReminders"

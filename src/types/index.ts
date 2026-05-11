@@ -6,6 +6,15 @@ export interface Subtask {
   done: boolean
 }
 
+export type RecurrenceFreq = 'daily' | 'weekly' | 'monthly'
+
+export interface RecurrenceRule {
+  freq: RecurrenceFreq
+  interval: number          // every N freq-units
+  weekdays?: number[]       // 0=Sun..6=Sat; only for weekly
+  endDate?: Timestamp       // optional series end
+}
+
 export interface Task {
   id?: string
   title: string
@@ -15,6 +24,9 @@ export interface Task {
   projectId?: string | null
   tags: string[]
   subtasks: Subtask[]
+  recurrence?: RecurrenceRule | null
+  recurrenceParentId?: string | null   // set on materialized historical occurrences
+  order?: number | null                // manual reorder position (sparse); null/undefined → fall back to due_date sort
   userId: string
   createdAt: Timestamp
   updatedAt: Timestamp

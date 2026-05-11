@@ -1,8 +1,8 @@
 <template>
   <div class="p-6">
     <div class="mb-6">
-      <h1 class="text-2xl font-semibold text-gray-900">Task & Reminder Dashboard</h1>
-      <p class="mt-1 text-sm text-gray-600">
+      <h1 class="text-2xl font-semibold text-ink">Task & Reminder Dashboard</h1>
+      <p class="mt-1 text-sm text-ink-muted">
         Manage your tasks and reminders efficiently
       </p>
     </div>
@@ -12,14 +12,14 @@
       <div class="card p-6">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-              <ClockIcon class="w-4 h-4 text-yellow-600" />
+            <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-500/20 rounded-full flex items-center justify-center">
+              <ClockIcon class="w-4 h-4 text-yellow-600 dark:text-yellow-300" />
             </div>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Pending Tasks</dt>
-              <dd class="text-lg font-medium text-gray-900">{{ taskStore.pendingTasks.length }}</dd>
+              <dt class="text-sm font-medium text-ink-subtle truncate">Pending Tasks</dt>
+              <dd class="text-lg font-medium text-ink">{{ taskStore.pendingTasks.length }}</dd>
             </dl>
           </div>
         </div>
@@ -28,14 +28,14 @@
       <div class="card p-6">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckIcon class="w-4 h-4 text-green-600" />
+            <div class="w-8 h-8 bg-green-100 dark:bg-green-500/20 rounded-full flex items-center justify-center">
+              <CheckIcon class="w-4 h-4 text-green-600 dark:text-green-300" />
             </div>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Completed</dt>
-              <dd class="text-lg font-medium text-gray-900">{{ taskStore.completedTasks.length }}</dd>
+              <dt class="text-sm font-medium text-ink-subtle truncate">Completed</dt>
+              <dd class="text-lg font-medium text-ink">{{ taskStore.completedTasks.length }}</dd>
             </dl>
           </div>
         </div>
@@ -44,14 +44,14 @@
       <div class="card p-6">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <InformationCircleIcon class="w-4 h-4 text-blue-600" />
+            <div class="w-8 h-8 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center">
+              <InformationCircleIcon class="w-4 h-4 text-blue-600 dark:text-blue-300" />
             </div>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Active Reminders</dt>
-              <dd class="text-lg font-medium text-gray-900">{{ reminderStore.activeReminders.length }}</dd>
+              <dt class="text-sm font-medium text-ink-subtle truncate">Active Reminders</dt>
+              <dd class="text-lg font-medium text-ink">{{ reminderStore.activeReminders.length }}</dd>
             </dl>
           </div>
         </div>
@@ -60,28 +60,33 @@
       <div class="card p-6">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-              <ExclamationTriangleIcon class="w-4 h-4 text-red-600" />
+            <div class="w-8 h-8 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center">
+              <ExclamationTriangleIcon class="w-4 h-4 text-red-600 dark:text-red-300" />
             </div>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Current Reminders</dt>
-              <dd class="text-lg font-medium text-gray-900">{{ reminderStore.currentReminders.length }}</dd>
+              <dt class="text-sm font-medium text-ink-subtle truncate">Current Reminders</dt>
+              <dd class="text-lg font-medium text-ink">{{ reminderStore.currentReminders.length }}</dd>
             </dl>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Quick add bar -->
+    <div class="mb-4">
+      <QuickAddBar :default-project-id="newTaskDefaultProjectId" />
+    </div>
+
     <!-- Add Buttons -->
     <div class="mb-6 flex gap-3">
       <button
         @click="showAddTask = true"
-        class="btn-primary inline-flex items-center"
+        class="btn-secondary inline-flex items-center"
       >
         <PlusIcon class="w-4 h-4 mr-2" />
-        Add New Task
+        Detailed Task
       </button>
 
       <button
@@ -100,7 +105,7 @@
         class="px-3 py-1 rounded-full text-sm border transition-colors"
         :class="projectFilter === 'all'
           ? 'bg-primary-500 text-white border-primary-500'
-          : 'bg-elevated text-gray-700 border-line hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700'"
+          : 'bg-elevated text-ink-muted border-line hover:bg-overlay'"
         @click="projectFilter = 'all'"
       >
         All ({{ taskStore.tasks.length }})
@@ -110,7 +115,7 @@
         class="px-3 py-1 rounded-full text-sm border transition-colors inline-flex items-center gap-1.5"
         :class="projectFilter === 'inbox'
           ? 'bg-primary-500 text-white border-primary-500'
-          : 'bg-elevated text-gray-700 border-line hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700'"
+          : 'bg-elevated text-ink-muted border-line hover:bg-overlay'"
         @click="projectFilter = 'inbox'"
       >
         <InboxIcon class="w-4 h-4" />
@@ -122,7 +127,7 @@
         class="rounded-full text-sm border transition-colors inline-flex items-center gap-1.5 overflow-hidden"
         :class="projectFilter === project.id
           ? 'bg-primary-500 text-white border-primary-500'
-          : 'bg-elevated text-gray-700 border-line hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700'"
+          : 'bg-elevated text-ink-muted border-line hover:bg-overlay'"
       >
         <button
           type="button"
@@ -148,8 +153,8 @@
       <!-- Current Reminders -->
       <div v-if="reminderStore.currentReminders.length > 0" class="card">
         <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-            <InformationCircleIcon class="w-5 h-5 text-blue-600" />
+          <h3 class="text-lg font-medium text-ink mb-4 flex items-center gap-2">
+            <InformationCircleIcon class="w-5 h-5 text-blue-600 dark:text-blue-300" />
             Current Reminders
           </h3>
           <div class="space-y-3">
@@ -170,51 +175,76 @@
       <!-- Pending Tasks -->
       <div class="card">
         <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Pending Tasks</h3>
+          <h3 class="text-lg font-medium text-ink mb-4">Pending Tasks</h3>
 
           <div v-if="taskStore.loading" class="text-center py-4">
             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mx-auto"></div>
           </div>
 
-          <div v-else-if="filteredPendingTasks.length === 0" class="text-gray-500 text-center py-8">
+          <div v-else-if="filteredPendingTasks.length === 0" class="text-ink-subtle text-center py-8">
             No pending tasks here. Great job! 🎉
           </div>
 
-          <div v-else class="space-y-3">
-            <TaskItem
-              v-for="task in filteredPendingTasks"
+          <VueDraggable
+            v-else
+            v-model="localPending"
+            :animation="150"
+            :delay="100"
+            :delay-on-touch-only="true"
+            class="space-y-3"
+            @end="(evt: any) => onReorder(evt, 'pending')"
+          >
+            <div
+              v-for="task in localPending"
               :key="task.id"
-              :task="task"
-              @edit="editTask"
-              @delete="deleteTask"
-              @toggle="toggleTask"
-              @toggle-subtask="toggleSubtask"
-            />
-          </div>
+              class="task-row"
+              :data-task-id="task.id ?? ''"
+            >
+              <TaskItem
+                :task="task"
+                @edit="editTask"
+                @delete="deleteTask"
+                @toggle="toggleTask"
+                @toggle-subtask="toggleSubtask"
+              />
+            </div>
+          </VueDraggable>
         </div>
       </div>
 
       <!-- Completed Tasks -->
       <div v-if="filteredCompletedTasks.length > 0" class="card">
         <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Completed Tasks</h3>
-          <div class="space-y-3">
-            <TaskItem
-              v-for="task in filteredCompletedTasks"
+          <h3 class="text-lg font-medium text-ink mb-4">Completed Tasks</h3>
+          <VueDraggable
+            v-model="localCompleted"
+            :animation="150"
+            :delay="100"
+            :delay-on-touch-only="true"
+            class="space-y-3"
+            @end="(evt: any) => onReorder(evt, 'completed')"
+          >
+            <div
+              v-for="task in localCompleted"
               :key="task.id"
-              :task="task"
-              @edit="editTask"
-              @delete="deleteTask"
-              @toggle="toggleTask"
-            />
-          </div>
+              class="task-row"
+              :data-task-id="task.id ?? ''"
+            >
+              <TaskItem
+                :task="task"
+                @edit="editTask"
+                @delete="deleteTask"
+                @toggle="toggleTask"
+              />
+            </div>
+          </VueDraggable>
         </div>
       </div>
 
       <!-- All Reminders -->
       <div v-if="reminderStore.activeReminders.length > 0" class="card">
         <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">All Active Reminders</h3>
+          <h3 class="text-lg font-medium text-ink mb-4">All Active Reminders</h3>
           
           <div v-if="reminderStore.loading" class="text-center py-4">
             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mx-auto"></div>
@@ -256,7 +286,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { VueDraggable } from 'vue-draggable-plus'
 import { useTaskStore } from '@/stores/tasks'
 import { useReminderStore } from '@/stores/reminders'
 import { useProjectStore } from '@/stores/projects'
@@ -264,6 +295,7 @@ import TaskItem from '@/components/TaskItem.vue'
 import TaskModal from '@/components/TaskModal.vue'
 import ReminderItem from '@/components/ReminderItem.vue'
 import ReminderModal from '@/components/ReminderModal.vue'
+import QuickAddBar from '@/components/QuickAddBar.vue'
 import type { Task, Reminder } from '@/types'
 import { projectColorClasses } from '@/utils/projectColors'
 import { ClockIcon, CheckIcon, InformationCircleIcon, ExclamationTriangleIcon, PlusIcon, XMarkIcon } from '@heroicons/vue/20/solid'
@@ -287,8 +319,40 @@ const matchesFilter = (task: Task) => {
   return task.projectId === projectFilter.value
 }
 
-const filteredPendingTasks = computed(() => taskStore.pendingTasks.filter(matchesFilter))
-const filteredCompletedTasks = computed(() => taskStore.completedTasks.filter(matchesFilter))
+const bySortKey = (a: Task, b: Task) => taskStore.sortKey(a) - taskStore.sortKey(b)
+
+const filteredPendingTasks = computed(() =>
+  taskStore.pendingTasks.filter(matchesFilter).slice().sort(bySortKey),
+)
+const filteredCompletedTasks = computed(() =>
+  taskStore.completedTasks.filter(matchesFilter).slice().sort(bySortKey),
+)
+
+// Writable mirrors of the filtered lists. VueDraggable mutates these
+// during drag for instant visual feedback; the watch below re-syncs them
+// whenever the upstream filtered list changes (e.g., after a Firestore
+// snapshot, project filter switch, etc.).
+const localPending = ref<Task[]>([])
+const localCompleted = ref<Task[]>([])
+
+watch(filteredPendingTasks, (next) => { localPending.value = [...next] }, { immediate: true })
+watch(filteredCompletedTasks, (next) => { localCompleted.value = [...next] }, { immediate: true })
+
+const onReorder = async (event: any, bucket: 'pending' | 'completed') => {
+  const newIndex: number = event.newIndex
+  const oldIndex: number = event.oldIndex
+  if (newIndex === undefined || oldIndex === undefined || newIndex === oldIndex) return
+
+  const list = bucket === 'pending' ? localPending.value : localCompleted.value
+  const moved = list[newIndex]
+  if (!moved?.id) return
+
+  const prev = list[newIndex - 1]
+  const next = list[newIndex + 1]
+  const newOrder = taskStore.computeDropOrder(prev, next)
+
+  await taskStore.updateTask(moved.id, { order: newOrder })
+}
 
 const newTaskDefaultProjectId = computed(() =>
   projectFilter.value === 'all' || projectFilter.value === 'inbox' ? null : projectFilter.value,

@@ -2,7 +2,7 @@
   <RouterLink 
     to="/reminders" 
     v-if="reminderStore.currentReminders.length > 0"
-    class="inline-flex items-center px-3 py-2 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 transition-colors animate-pulse cursor-pointer"
+    class="inline-flex items-center px-3 py-2 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-500/20 dark:text-red-200 dark:hover:bg-red-500/30 transition-colors animate-pulse cursor-pointer"
   >
     <InformationCircleIcon class="w-3 h-3 mr-1" />
     {{ reminderStore.currentReminders.length }} Active Reminder{{ reminderStore.currentReminders.length === 1 ? '' : 's' }}

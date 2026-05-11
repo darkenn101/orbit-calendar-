@@ -1,22 +1,22 @@
 <template>
-  <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+  <div class="bg-elevated rounded-lg shadow p-4 border-l-4 border-blue-500">
     <div class="flex items-start justify-between">
       <div class="flex-1">
         <div class="flex items-center gap-2 mb-2">
-          <h3 class="font-medium text-gray-900">{{ reminder.title }}</h3>
-          <span 
+          <h3 class="font-medium text-ink">{{ reminder.title }}</h3>
+          <span
             class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
             :class="statusClasses[reminder.status]"
           >
             {{ reminder.status.charAt(0).toUpperCase() + reminder.status.slice(1) }}
           </span>
         </div>
-        
-        <p v-if="reminder.description" class="text-gray-600 text-sm mb-3">
+
+        <p v-if="reminder.description" class="text-ink-muted text-sm mb-3">
           {{ reminder.description }}
         </p>
-        
-        <div class="text-xs text-gray-500 space-y-1">
+
+        <div class="text-xs text-ink-subtle space-y-1">
           <div v-if="reminder.start_date" class="flex items-center gap-1">
             <ClockIcon class="w-3 h-3" />
             <span>Starts: {{ formatDate(reminder.start_date) }}</span>
@@ -47,7 +47,7 @@
         <button
           v-if="reminder.status === 'active'"
           @click="$emit('dismiss', reminder.id!)"
-          class="text-gray-400 hover:text-gray-600 p-1"
+          class="text-ink-subtle hover:text-ink p-1"
           title="Dismiss reminder"
         >
           <XMarkIcon class="w-4 h-4" />
@@ -100,9 +100,9 @@ defineEmits<{
 }>()
 
 const statusClasses = {
-  active: 'bg-green-100 text-green-800',
-  completed: 'bg-blue-100 text-blue-800',
-  dismissed: 'bg-gray-100 text-gray-800'
+  active: 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-200',
+  completed: 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-200',
+  dismissed: 'bg-overlay text-ink-muted',
 }
 
 const formatDate = (timestamp: any) => {

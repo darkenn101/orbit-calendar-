@@ -287,7 +287,7 @@ onBeforeUnmount(() => {
 }
 
 .editor-toolbar {
-  @apply flex items-center gap-1 px-3 py-2 border-b border-gray-200 bg-gray-50/80 flex-wrap;
+  @apply flex items-center gap-1 px-3 py-2 border-b border-line bg-surface/80 flex-wrap;
 }
 
 .toolbar-group {
@@ -295,15 +295,15 @@ onBeforeUnmount(() => {
 }
 
 .toolbar-divider {
-  @apply w-px h-5 bg-gray-300 mx-1;
+  @apply w-px h-5 bg-line-strong mx-1;
 }
 
 .toolbar-btn {
-  @apply p-1.5 rounded text-gray-500 hover:text-gray-900 hover:bg-gray-200 transition-colors text-xs font-semibold disabled:opacity-30 disabled:cursor-not-allowed;
+  @apply p-1.5 rounded text-ink-subtle hover:text-ink hover:bg-overlay transition-colors text-xs font-semibold disabled:opacity-30 disabled:cursor-not-allowed;
 }
 
 .toolbar-btn.active {
-  @apply bg-gray-200 text-primary-600;
+  @apply bg-overlay text-primary-600;
 }
 
 .editor-content {
@@ -316,7 +316,7 @@ onBeforeUnmount(() => {
 }
 
 .editor-content :deep(.tiptap p.is-editor-empty:first-child::before) {
-  @apply text-gray-400;
+  @apply text-ink-subtle;
   content: attr(data-placeholder);
   float: left;
   height: 0;
@@ -324,19 +324,19 @@ onBeforeUnmount(() => {
 }
 
 .editor-content :deep(.tiptap h1) {
-  @apply text-2xl font-bold mb-3 text-gray-900;
+  @apply text-2xl font-bold mb-3 text-ink;
 }
 
 .editor-content :deep(.tiptap h2) {
-  @apply text-xl font-semibold mb-2 text-gray-900;
+  @apply text-xl font-semibold mb-2 text-ink;
 }
 
 .editor-content :deep(.tiptap h3) {
-  @apply text-lg font-medium mb-2 text-gray-900;
+  @apply text-lg font-medium mb-2 text-ink;
 }
 
 .editor-content :deep(.tiptap p) {
-  @apply mb-2 text-gray-700 leading-relaxed;
+  @apply mb-2 text-ink-muted leading-relaxed;
 }
 
 .editor-content :deep(.tiptap ul) {
@@ -352,7 +352,7 @@ onBeforeUnmount(() => {
 }
 
 .editor-content :deep(.tiptap blockquote) {
-  @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 my-3;
+  @apply border-l-4 border-line-strong pl-4 italic text-ink-muted my-3;
 }
 
 .editor-content :deep(.tiptap pre) {
@@ -360,7 +360,7 @@ onBeforeUnmount(() => {
 }
 
 .editor-content :deep(.tiptap code) {
-  @apply bg-gray-100 text-pink-600 px-1.5 py-0.5 rounded text-sm;
+  @apply bg-overlay text-pink-600 dark:text-pink-300 px-1.5 py-0.5 rounded text-sm;
 }
 
 .editor-content :deep(.tiptap pre code) {
@@ -368,11 +368,11 @@ onBeforeUnmount(() => {
 }
 
 .editor-content :deep(.tiptap hr) {
-  @apply my-4 border-gray-200;
+  @apply my-4 border-line;
 }
 
 .editor-content :deep(.tiptap mark) {
-  @apply bg-yellow-200 rounded px-0.5;
+  @apply bg-yellow-200 dark:bg-yellow-500/40 dark:text-yellow-100 rounded px-0.5;
 }
 
 .editor-content :deep(.tiptap img) {
@@ -393,7 +393,7 @@ onBeforeUnmount(() => {
 }
 
 .editor-content :deep(.tiptap ul[data-type="taskList"] li label input[type="checkbox"]) {
-  @apply w-4 h-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500 cursor-pointer mt-0.5;
+  @apply w-4 h-4 rounded border-line-strong text-primary-500 focus:ring-primary-500 cursor-pointer mt-0.5;
 }
 
 .editor-content :deep(.tiptap ul[data-type="taskList"] li div) {
@@ -401,6 +401,6 @@ onBeforeUnmount(() => {
 }
 
 .editor-content :deep(.tiptap ul[data-type="taskList"] li[data-checked="true"] div p) {
-  @apply line-through text-gray-400;
+  @apply line-through text-ink-subtle;
 }
 </style>

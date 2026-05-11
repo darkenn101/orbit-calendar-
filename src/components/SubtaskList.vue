@@ -16,7 +16,7 @@
             class="w-4 h-4 rounded border-2 flex items-center justify-center transition-colors"
             :class="sub.done
               ? 'bg-green-500 border-green-500'
-              : 'border-gray-300 hover:border-green-400 dark:border-gray-500 dark:hover:border-green-400'"
+              : 'border-line-strong hover:border-green-400'"
           >
             <svg
               v-if="sub.done"
@@ -32,8 +32,8 @@
           :ref="(el) => setInputRef(el, index)"
           v-model="sub.text"
           type="text"
-          class="flex-1 bg-transparent border-none outline-none text-sm"
-          :class="{ 'line-through text-gray-400': sub.done }"
+          class="flex-1 bg-transparent border-none outline-none text-sm text-ink placeholder:text-ink-subtle"
+          :class="{ 'line-through text-ink-subtle': sub.done }"
           :placeholder="`Subtask ${index + 1}`"
           @keydown.enter.prevent="addSubtask(index + 1)"
           @keydown.backspace="onBackspace($event, index)"
@@ -41,7 +41,7 @@
         />
         <button
           type="button"
-          class="flex-shrink-0 text-gray-400 hover:text-red-500 transition-colors"
+          class="flex-shrink-0 text-ink-subtle hover:text-red-500 transition-colors"
           aria-label="Remove subtask"
           @click="removeSubtask(index)"
         >

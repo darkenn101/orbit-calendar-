@@ -1,15 +1,15 @@
 <template>
-  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900">
+  <div class="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+    <div class="bg-elevated rounded-lg shadow-xl max-w-md w-full">
+      <div class="px-6 py-4 border-b border-line">
+        <h3 class="text-lg font-medium text-ink">
           {{ reminder ? 'Edit Reminder' : 'Add New Reminder' }}
         </h3>
       </div>
-      
+
       <form @submit.prevent="handleSubmit" class="px-6 py-4 space-y-4">
         <div>
-          <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="title" class="block text-sm font-medium text-ink-muted mb-1">
             Title
           </label>
           <input
@@ -21,9 +21,9 @@
             placeholder="Enter reminder title"
           />
         </div>
-        
+
         <div>
-          <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="description" class="block text-sm font-medium text-ink-muted mb-1">
             Description
           </label>
           <textarea
@@ -34,9 +34,9 @@
             placeholder="Enter reminder description"
           ></textarea>
         </div>
-        
+
         <div>
-          <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="start_date" class="block text-sm font-medium text-ink-muted mb-1">
             Start Date (Optional)
           </label>
           <input
@@ -45,13 +45,13 @@
             type="datetime-local"
             class="input"
           />
-          <p class="text-xs text-gray-500 mt-1">
+          <p class="text-xs text-ink-subtle mt-1">
             When this reminder should become active
           </p>
         </div>
-        
+
         <div>
-          <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="end_date" class="block text-sm font-medium text-ink-muted mb-1">
             End Date (Optional)
           </label>
           <input
@@ -60,13 +60,13 @@
             type="datetime-local"
             class="input"
           />
-          <p class="text-xs text-gray-500 mt-1">
+          <p class="text-xs text-ink-subtle mt-1">
             When this reminder should stop being shown
           </p>
         </div>
-        
+
         <div v-if="reminder">
-          <label for="status" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="status" class="block text-sm font-medium text-ink-muted mb-1">
             Status
           </label>
           <select
@@ -80,12 +80,12 @@
           </select>
         </div>
 
-        <div v-if="error" class="text-red-600 text-sm">
+        <div v-if="error" class="text-red-600 dark:text-red-400 text-sm">
           {{ error }}
         </div>
       </form>
-      
-      <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+
+      <div class="px-6 py-4 border-t border-line flex justify-end space-x-3">
         <button
           type="button"
           @click="$emit('close')"

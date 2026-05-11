@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen flex items-center justify-center bg-surface py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
       <div>
         <div class="mx-auto h-12 w-12 flex items-center justify-center">
@@ -7,10 +7,10 @@
             <span class="text-white font-bold text-xl">O</span>
           </div>
         </div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-ink">
           {{ isLogin ? 'Sign in to Orbit' : 'Create your Orbit account' }}
         </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
+        <p class="mt-2 text-center text-sm text-ink-muted">
           {{ isLogin ? 'Manage your tasks efficiently' : 'Start organizing your tasks today' }}
         </p>
       </div>
@@ -25,7 +25,7 @@
               type="email"
               autocomplete="email"
               required
-              class="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+              class="relative block w-full px-3 py-2 bg-elevated text-ink border border-line-strong placeholder:text-ink-subtle rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
               placeholder="Email address"
             />
           </div>
@@ -38,13 +38,13 @@
               type="password"
               autocomplete="current-password"
               required
-              class="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+              class="relative block w-full px-3 py-2 bg-elevated text-ink border border-line-strong placeholder:text-ink-subtle rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
               placeholder="Password"
             />
           </div>
         </div>
 
-        <div v-if="error" class="text-red-600 text-sm text-center">
+        <div v-if="error" class="text-red-600 dark:text-red-400 text-sm text-center">
           {{ error }}
         </div>
 

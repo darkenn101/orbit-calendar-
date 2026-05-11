@@ -16,11 +16,16 @@ export default {
         },
         surface: 'rgb(var(--color-surface) / <alpha-value>)',
         elevated: 'rgb(var(--color-elevated) / <alpha-value>)',
+        overlay: 'rgb(var(--color-overlay) / <alpha-value>)',
         ink: {
           DEFAULT: 'rgb(var(--color-ink) / <alpha-value>)',
           muted: 'rgb(var(--color-ink-muted) / <alpha-value>)',
+          subtle: 'rgb(var(--color-ink-subtle) / <alpha-value>)',
         },
-        line: 'rgb(var(--color-line) / <alpha-value>)',
+        line: {
+          DEFAULT: 'rgb(var(--color-line) / <alpha-value>)',
+          strong: 'rgb(var(--color-line-strong) / <alpha-value>)',
+        },
       }
     },
   },

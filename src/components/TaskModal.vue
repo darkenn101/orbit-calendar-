@@ -1,8 +1,8 @@
 <template>
-  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] flex flex-col">
-      <div class="px-6 py-4 border-b border-gray-200 flex-shrink-0">
-        <h3 class="text-lg font-medium text-gray-900">
+  <div class="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+    <div class="bg-elevated rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col">
+      <div class="px-6 py-4 border-b border-line flex-shrink-0">
+        <h3 class="text-lg font-medium text-ink">
           {{ task ? 'Edit Task' : 'Add New Task' }}
         </h3>
       </div>
@@ -10,7 +10,7 @@
       <form @submit.prevent="handleSubmit" class="flex-1 overflow-y-auto">
         <!-- Title — always visible above the accordion -->
         <div class="px-6 pt-4 pb-2">
-          <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="title" class="block text-sm font-medium text-ink-muted mb-1">
             Title
           </label>
           <input
@@ -27,11 +27,11 @@
         <details class="task-modal-section" :open="sections.details">
           <summary class="task-modal-summary">
             <span class="font-medium">Details</span>
-            <ChevronDownIcon class="w-4 h-4 text-gray-400 task-modal-chevron" />
+            <ChevronDownIcon class="w-4 h-4 text-ink-subtle task-modal-chevron" />
           </summary>
           <div class="px-6 pb-4 space-y-4">
             <div>
-              <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+              <label for="description" class="block text-sm font-medium text-ink-muted mb-1">
                 Description
               </label>
               <textarea
@@ -43,7 +43,7 @@
               ></textarea>
             </div>
             <div>
-              <label for="due_date" class="block text-sm font-medium text-gray-700 mb-1">
+              <label for="due_date" class="block text-sm font-medium text-ink-muted mb-1">
                 Due Date
               </label>
               <input
@@ -62,19 +62,19 @@
           <summary class="task-modal-summary">
             <span class="font-medium flex items-center gap-2">
               Organize
-              <span v-if="organizeBadge" class="text-xs text-gray-500 font-normal">{{ organizeBadge }}</span>
+              <span v-if="organizeBadge" class="text-xs text-ink-subtle font-normal">{{ organizeBadge }}</span>
             </span>
-            <ChevronDownIcon class="w-4 h-4 text-gray-400 task-modal-chevron" />
+            <ChevronDownIcon class="w-4 h-4 text-ink-subtle task-modal-chevron" />
           </summary>
           <div class="px-6 pb-4 space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-ink-muted mb-1">
                 Project
               </label>
               <ProjectPicker v-model="form.projectId" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-ink-muted mb-1">
                 Tags
               </label>
               <TagInput v-model="form.tags" placeholder="Type a tag and press Enter" />
@@ -87,12 +87,26 @@
           <summary class="task-modal-summary">
             <span class="font-medium flex items-center gap-2">
               Checklist
-              <span v-if="checklistBadge" class="text-xs text-gray-500 font-normal">{{ checklistBadge }}</span>
+              <span v-if="checklistBadge" class="text-xs text-ink-subtle font-normal">{{ checklistBadge }}</span>
             </span>
-            <ChevronDownIcon class="w-4 h-4 text-gray-400 task-modal-chevron" />
+            <ChevronDownIcon class="w-4 h-4 text-ink-subtle task-modal-chevron" />
           </summary>
           <div class="px-6 pb-4">
             <SubtaskList v-model="form.subtasks" />
+          </div>
+        </details>
+
+        <!-- Repeats section -->
+        <details class="task-modal-section" :open="sections.repeats">
+          <summary class="task-modal-summary">
+            <span class="font-medium flex items-center gap-2">
+              Repeats
+              <span v-if="repeatsBadge" class="text-xs text-ink-subtle font-normal">{{ repeatsBadge }}</span>
+            </span>
+            <ChevronDownIcon class="w-4 h-4 text-ink-subtle task-modal-chevron" />
+          </summary>
+          <div class="px-6 pb-4">
+            <RecurrenceEditor v-model="form.recurrence" :anchor-date="recurrenceAnchor" />
           </div>
         </details>
 
@@ -101,9 +115,9 @@
           <summary class="task-modal-summary">
             <span class="font-medium flex items-center gap-2">
               Status
-              <span class="text-xs text-gray-500 font-normal capitalize">{{ form.status }}</span>
+              <span class="text-xs text-ink-subtle font-normal capitalize">{{ form.status }}</span>
             </span>
-            <ChevronDownIcon class="w-4 h-4 text-gray-400 task-modal-chevron" />
+            <ChevronDownIcon class="w-4 h-4 text-ink-subtle task-modal-chevron" />
           </summary>
           <div class="px-6 pb-4">
             <select
@@ -117,12 +131,12 @@
           </div>
         </details>
 
-        <div v-if="error" class="px-6 pb-4 text-red-600 text-sm">
+        <div v-if="error" class="px-6 pb-4 text-red-600 dark:text-red-400 text-sm">
           {{ error }}
         </div>
       </form>
 
-      <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3 flex-shrink-0">
+      <div class="px-6 py-4 border-t border-line flex justify-end space-x-3 flex-shrink-0">
         <button
           type="button"
           @click="$emit('close')"
@@ -153,10 +167,12 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { Timestamp } from 'firebase/firestore'
 import { format } from 'date-fns'
 import { ChevronDownIcon } from '@heroicons/vue/20/solid'
-import type { Task, Subtask } from '@/types'
+import type { Task, Subtask, RecurrenceRule } from '@/types'
 import ProjectPicker from '@/components/ProjectPicker.vue'
 import TagInput from '@/components/TagInput.vue'
 import SubtaskList from '@/components/SubtaskList.vue'
+import RecurrenceEditor from '@/components/RecurrenceEditor.vue'
+import { describeRule } from '@/utils/recurrence'
 
 const props = defineProps<{
   task?: Task | null
@@ -180,14 +196,23 @@ const form = reactive({
   projectId: null as string | null,
   tags: [] as string[],
   subtasks: [] as Subtask[],
+  recurrence: null as RecurrenceRule | null,
 })
 
 const sections = reactive({
   details: true,
   organize: false,
   checklist: false,
+  repeats: false,
   status: false,
 })
+
+const recurrenceAnchor = computed(() => {
+  if (!form.due_date) return new Date()
+  return new Date(form.due_date)
+})
+
+const repeatsBadge = computed(() => (form.recurrence ? describeRule(form.recurrence) : ''))
 
 const organizeBadge = computed(() => {
   const parts: string[] = []
@@ -211,9 +236,11 @@ onMounted(() => {
     form.projectId = props.task.projectId ?? null
     form.tags = [...(props.task.tags ?? [])]
     form.subtasks = (props.task.subtasks ?? []).map((s) => ({ ...s }))
+    form.recurrence = props.task.recurrence ? { ...props.task.recurrence } : null
 
     sections.organize = !!form.projectId || form.tags.length > 0
     sections.checklist = form.subtasks.length > 0
+    sections.repeats = !!form.recurrence
   } else {
     const defaultDate = props.defaultDate || new Date()
     if (!props.defaultDate) {
@@ -240,6 +267,7 @@ const handleSubmit = async () => {
       projectId: form.projectId,
       tags: form.tags,
       subtasks: form.subtasks.filter((s) => s.text.trim() !== ''),
+      recurrence: form.recurrence,
     }
 
     emit('save', taskData)
@@ -270,7 +298,7 @@ const handleSubmit = async () => {
 }
 
 .task-modal-summary:hover {
-  background: rgb(var(--color-surface));
+  background: rgb(var(--color-overlay));
 }
 
 details[open] .task-modal-chevron {

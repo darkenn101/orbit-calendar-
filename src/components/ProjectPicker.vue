@@ -11,10 +11,10 @@
           class="w-2.5 h-2.5 rounded-full flex-shrink-0"
           :class="dotClass(selectedProject.color)"
         />
-        <InboxIcon v-else class="w-4 h-4 text-gray-400 flex-shrink-0" />
+        <InboxIcon v-else class="w-4 h-4 text-ink-subtle flex-shrink-0" />
         <span class="truncate">{{ selectedProject?.name ?? 'Inbox (no project)' }}</span>
       </span>
-      <ChevronDownIcon class="w-4 h-4 text-gray-400 flex-shrink-0" />
+      <ChevronDownIcon class="w-4 h-4 text-ink-subtle flex-shrink-0" />
     </button>
 
     <div
@@ -23,10 +23,10 @@
     >
       <button
         type="button"
-        class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+        class="w-full flex items-center gap-2 px-3 py-2 text-sm text-ink hover:bg-overlay"
         @click="select(null)"
       >
-        <InboxIcon class="w-4 h-4 text-gray-400" />
+        <InboxIcon class="w-4 h-4 text-ink-subtle" />
         <span>Inbox (no project)</span>
       </button>
 
@@ -34,7 +34,7 @@
         v-for="project in projectStore.projects"
         :key="project.id"
         type="button"
-        class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+        class="w-full flex items-center gap-2 px-3 py-2 text-sm text-ink hover:bg-overlay"
         @click="select(project.id ?? null)"
       >
         <span class="w-2.5 h-2.5 rounded-full" :class="dotClass(project.color)" />
@@ -67,7 +67,7 @@
               :key="color"
               type="button"
               class="w-5 h-5 rounded-full border-2 transition-transform"
-              :class="[dotClass(color), newColor === color ? 'border-gray-900 dark:border-white scale-110' : 'border-transparent']"
+              :class="[dotClass(color), newColor === color ? 'border-ink scale-110' : 'border-transparent']"
               :title="color"
               @click="newColor = color"
             />
@@ -76,7 +76,7 @@
             {{ createError }}
           </p>
           <div class="flex justify-end gap-2">
-            <button type="button" class="text-xs text-gray-500 hover:text-gray-700" @click="cancelCreate">
+            <button type="button" class="text-xs text-ink-subtle hover:text-ink-muted" @click="cancelCreate">
               Cancel
             </button>
             <button
