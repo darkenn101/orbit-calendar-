@@ -76,19 +76,11 @@
 
     <!-- Quick add bar -->
     <div class="mb-4">
-      <QuickAddBar :default-project-id="newTaskDefaultProjectId" />
+      <QuickAddBar />
     </div>
 
     <!-- Add Buttons -->
     <div class="mb-6 flex gap-3">
-      <button
-        @click="showAddTask = true"
-        class="btn-secondary inline-flex items-center"
-      >
-        <PlusIcon class="w-4 h-4 mr-2" />
-        Detailed Task
-      </button>
-
       <button
         @click="showAddReminder = true"
         class="btn-secondary inline-flex items-center"
@@ -96,56 +88,6 @@
         <PlusIcon class="w-4 h-4 mr-2" />
         Add New Reminder
       </button>
-    </div>
-
-    <!-- Project filter pills -->
-    <div class="mb-6 flex flex-wrap items-center gap-2">
-      <button
-        type="button"
-        class="px-3 py-1 rounded-full text-sm border transition-colors"
-        :class="projectFilter === 'all'
-          ? 'bg-primary-500 text-white border-primary-500'
-          : 'bg-elevated text-ink-muted border-line hover:bg-overlay'"
-        @click="projectFilter = 'all'"
-      >
-        All ({{ taskStore.tasks.length }})
-      </button>
-      <button
-        type="button"
-        class="px-3 py-1 rounded-full text-sm border transition-colors inline-flex items-center gap-1.5"
-        :class="projectFilter === 'inbox'
-          ? 'bg-primary-500 text-white border-primary-500'
-          : 'bg-elevated text-ink-muted border-line hover:bg-overlay'"
-        @click="projectFilter = 'inbox'"
-      >
-        <InboxIcon class="w-4 h-4" />
-        <span>Inbox ({{ inboxCount }})</span>
-      </button>
-      <div
-        v-for="project in projectStore.projects"
-        :key="project.id"
-        class="rounded-full text-sm border transition-colors inline-flex items-center gap-1.5 overflow-hidden"
-        :class="projectFilter === project.id
-          ? 'bg-primary-500 text-white border-primary-500'
-          : 'bg-elevated text-ink-muted border-line hover:bg-overlay'"
-      >
-        <button
-          type="button"
-          class="pl-3 py-1 inline-flex items-center gap-1.5"
-          @click="projectFilter = project.id ?? 'all'"
-        >
-          <span class="w-2 h-2 rounded-full" :class="projectColorClasses[project.color]" />
-          <span>{{ project.name }} ({{ projectCounts[project.id ?? ''] ?? 0 }})</span>
-        </button>
-        <button
-          type="button"
-          class="pr-2.5 py-1 opacity-60 hover:opacity-100"
-          :title="`Delete project '${project.name}' and its tasks`"
-          @click.stop="confirmDeleteProject(project.id!, project.name)"
-        >
-          <XMarkIcon class="w-3 h-3" />
-        </button>
-      </div>
     </div>
 
     <!-- Content Sections -->
@@ -172,72 +114,68 @@
         </div>
       </div>
 
-      <!-- Pending Tasks -->
+      <!-- Today & Overdue -->
       <div class="card">
         <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-ink mb-4">Pending Tasks</h3>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-ink">Today &amp; Overdue</h3>
+            <RouterLink
+              to="/tasks"
+              class="text-sm text-primary-600 dark:text-primary-300 hover:underline"
+            >
+              Manage all tasks →
+            </RouterLink>
+          </div>
 
           <div v-if="taskStore.loading" class="text-center py-4">
             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mx-auto"></div>
           </div>
 
-          <div v-else-if="filteredPendingTasks.length === 0" class="text-ink-subtle text-center py-8">
-            No pending tasks here. Great job! 🎉
-          </div>
-
-          <VueDraggable
-            v-else
-            v-model="localPending"
-            :animation="150"
-            :delay="100"
-            :delay-on-touch-only="true"
-            class="space-y-3"
-            @end="(evt: any) => onReorder(evt, 'pending')"
-          >
-            <div
-              v-for="task in localPending"
-              :key="task.id"
-              class="task-row"
-              :data-task-id="task.id ?? ''"
-            >
-              <TaskItem
-                :task="task"
-                @edit="editTask"
-                @delete="deleteTask"
-                @toggle="toggleTask"
-                @toggle-subtask="toggleSubtask"
-              />
+          <template v-else>
+            <div v-if="overdueTasks.length" class="mb-4">
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-300 mb-2">
+                Overdue ({{ overdueTasks.length }})
+              </h4>
+              <div class="space-y-2">
+                <TaskItem
+                  v-for="task in overdueTasks"
+                  :key="task.id"
+                  :task="task"
+                  @edit="editTask"
+                  @delete="deleteTask"
+                  @toggle="toggleTask"
+                  @toggle-subtask="toggleSubtask"
+                />
+              </div>
             </div>
-          </VueDraggable>
-        </div>
-      </div>
 
-      <!-- Completed Tasks -->
-      <div v-if="filteredCompletedTasks.length > 0" class="card">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-ink mb-4">Completed Tasks</h3>
-          <VueDraggable
-            v-model="localCompleted"
-            :animation="150"
-            :delay="100"
-            :delay-on-touch-only="true"
-            class="space-y-3"
-            @end="(evt: any) => onReorder(evt, 'completed')"
-          >
-            <div
-              v-for="task in localCompleted"
-              :key="task.id"
-              class="task-row"
-              :data-task-id="task.id ?? ''"
-            >
-              <TaskItem
-                :task="task"
-                @edit="editTask"
-                @delete="deleteTask"
-                @toggle="toggleTask"
-              />
+            <div v-if="todayTasks.length">
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-ink-subtle mb-2">
+                Today ({{ todayTasks.length }})
+              </h4>
+              <div class="space-y-2">
+                <TaskItem
+                  v-for="task in todayTasks"
+                  :key="task.id"
+                  :task="task"
+                  @edit="editTask"
+                  @delete="deleteTask"
+                  @toggle="toggleTask"
+                  @toggle-subtask="toggleSubtask"
+                />
+              </div>
             </div>
-          </VueDraggable>
+
+            <div
+              v-if="!overdueTasks.length && !todayTasks.length"
+              class="text-ink-subtle text-center py-6"
+            >
+              Nothing due today. 🎉
+              <RouterLink to="/tasks" class="text-primary-600 dark:text-primary-300 hover:underline">
+                View all tasks
+              </RouterLink>
+            </div>
+          </template>
         </div>
       </div>
 
@@ -245,11 +183,11 @@
       <div v-if="reminderStore.activeReminders.length > 0" class="card">
         <div class="px-4 py-5 sm:p-6">
           <h3 class="text-lg font-medium text-ink mb-4">All Active Reminders</h3>
-          
+
           <div v-if="reminderStore.loading" class="text-center py-4">
             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mx-auto"></div>
           </div>
-          
+
           <div v-else class="space-y-3">
             <ReminderItem
               v-for="reminder in reminderStore.activeReminders"
@@ -266,15 +204,14 @@
       </div>
     </div>
 
-    <!-- Add/Edit Task Modal -->
+    <!-- Edit Task Modal (QuickAddBar opens this for created tasks; editTask for inline edits) -->
     <TaskModal
-      v-if="showAddTask || editingTask"
+      v-if="editingTask"
       :task="editingTask"
-      :default-project-id="newTaskDefaultProjectId"
       @close="closeTaskModal"
       @save="saveTask"
     />
-    
+
     <!-- Add/Edit Reminder Modal -->
     <ReminderModal
       v-if="showAddReminder || editingReminder"
@@ -286,8 +223,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { VueDraggable } from 'vue-draggable-plus'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useTaskStore } from '@/stores/tasks'
 import { useReminderStore } from '@/stores/reminders'
 import { useProjectStore } from '@/stores/projects'
@@ -296,84 +233,21 @@ import TaskModal from '@/components/TaskModal.vue'
 import ReminderItem from '@/components/ReminderItem.vue'
 import ReminderModal from '@/components/ReminderModal.vue'
 import QuickAddBar from '@/components/QuickAddBar.vue'
+import { groupTasksByDueBucket } from '@/utils/taskGroups'
 import type { Task, Reminder } from '@/types'
-import { projectColorClasses } from '@/utils/projectColors'
-import { ClockIcon, CheckIcon, InformationCircleIcon, ExclamationTriangleIcon, PlusIcon, XMarkIcon } from '@heroicons/vue/20/solid'
-import { InboxIcon } from '@heroicons/vue/24/outline'
+import { ClockIcon, CheckIcon, InformationCircleIcon, ExclamationTriangleIcon, PlusIcon } from '@heroicons/vue/20/solid'
 
 const taskStore = useTaskStore()
 const reminderStore = useReminderStore()
 const projectStore = useProjectStore()
 
-const showAddTask = ref(false)
 const editingTask = ref<Task | null>(null)
 const showAddReminder = ref(false)
 const editingReminder = ref<Reminder | null>(null)
 
-type ProjectFilter = 'all' | 'inbox' | string
-const projectFilter = ref<ProjectFilter>('all')
-
-const matchesFilter = (task: Task) => {
-  if (projectFilter.value === 'all') return true
-  if (projectFilter.value === 'inbox') return !task.projectId
-  return task.projectId === projectFilter.value
-}
-
-const bySortKey = (a: Task, b: Task) => taskStore.sortKey(a) - taskStore.sortKey(b)
-
-const filteredPendingTasks = computed(() =>
-  taskStore.pendingTasks.filter(matchesFilter).slice().sort(bySortKey),
-)
-const filteredCompletedTasks = computed(() =>
-  taskStore.completedTasks.filter(matchesFilter).slice().sort(bySortKey),
-)
-
-// Writable mirrors of the filtered lists. VueDraggable mutates these
-// during drag for instant visual feedback; the watch below re-syncs them
-// whenever the upstream filtered list changes (e.g., after a Firestore
-// snapshot, project filter switch, etc.).
-const localPending = ref<Task[]>([])
-const localCompleted = ref<Task[]>([])
-
-watch(filteredPendingTasks, (next) => { localPending.value = [...next] }, { immediate: true })
-watch(filteredCompletedTasks, (next) => { localCompleted.value = [...next] }, { immediate: true })
-
-const onReorder = async (event: any, bucket: 'pending' | 'completed') => {
-  const newIndex: number = event.newIndex
-  const oldIndex: number = event.oldIndex
-  if (newIndex === undefined || oldIndex === undefined || newIndex === oldIndex) return
-
-  const list = bucket === 'pending' ? localPending.value : localCompleted.value
-  const moved = list[newIndex]
-  if (!moved?.id) return
-
-  const prev = list[newIndex - 1]
-  const next = list[newIndex + 1]
-  const newOrder = taskStore.computeDropOrder(prev, next)
-
-  await taskStore.updateTask(moved.id, { order: newOrder })
-}
-
-const newTaskDefaultProjectId = computed(() =>
-  projectFilter.value === 'all' || projectFilter.value === 'inbox' ? null : projectFilter.value,
-)
-
-const inboxCount = computed(() => taskStore.tasks.filter((t) => !t.projectId).length)
-const projectCounts = computed(() => {
-  const counts: Record<string, number> = {}
-  for (const t of taskStore.tasks) if (t.projectId) counts[t.projectId] = (counts[t.projectId] ?? 0) + 1
-  return counts
-})
-
-const confirmDeleteProject = async (projectId: string, name: string) => {
-  const taskCount = projectCounts.value[projectId] ?? 0
-  const message = taskCount > 0
-    ? `Delete project "${name}" and its ${taskCount} task${taskCount === 1 ? '' : 's'}? This cannot be undone.`
-    : `Delete project "${name}"?`
-  if (!confirm(message)) return
-  await projectStore.deleteProject(projectId)
-  if (projectFilter.value === projectId) projectFilter.value = 'all'
-}
+const buckets = computed(() => groupTasksByDueBucket(taskStore.pendingTasks))
+const overdueTasks = computed(() => buckets.value.overdue)
+const todayTasks = computed(() => buckets.value.today)
 
 let taskUnsubscribe: (() => void) | undefined = undefined
 let reminderUnsubscribe: (() => void) | undefined = undefined
@@ -386,18 +260,11 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (taskUnsubscribe) {
-    taskUnsubscribe()
-  }
-  if (reminderUnsubscribe) {
-    reminderUnsubscribe()
-  }
-  if (projectUnsubscribe) {
-    projectUnsubscribe()
-  }
+  if (taskUnsubscribe) taskUnsubscribe()
+  if (reminderUnsubscribe) reminderUnsubscribe()
+  if (projectUnsubscribe) projectUnsubscribe()
 })
 
-// Task methods
 const editTask = (task: Task) => {
   editingTask.value = task
 }
@@ -417,20 +284,16 @@ const toggleSubtask = async (taskId: string, subtaskId: string) => {
 }
 
 const closeTaskModal = () => {
-  showAddTask.value = false
   editingTask.value = null
 }
 
 const saveTask = async (taskData: any) => {
   if (editingTask.value) {
     await taskStore.updateTask(editingTask.value.id!, taskData)
-  } else {
-    await taskStore.addTask(taskData)
   }
   closeTaskModal()
 }
 
-// Reminder methods
 const editReminder = (reminder: Reminder) => {
   editingReminder.value = reminder
 }

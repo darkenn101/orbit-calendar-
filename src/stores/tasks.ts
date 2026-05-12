@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { 
+import {
   collection,
   addDoc,
   updateDoc,
@@ -10,6 +10,9 @@ import {
   where,
   orderBy,
   onSnapshot,
+  writeBatch,
+  arrayUnion,
+  arrayRemove,
   Timestamp
 } from 'firebase/firestore'
 import { db } from '@/firebase/config'
@@ -203,6 +206,117 @@ export const useTaskStore = defineStore('tasks', () => {
     return Date.now()
   }
 
+  const BATCH_LIMIT = 500
+  const chunk = <T>(arr: T[], n: number): T[][] => {
+    const out: T[][] = []
+    for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n))
+    return out
+  }
+
+  type BulkBatchValue = ReturnType<typeof writeBatch>
+  type BatchOp = (batch: BulkBatchValue, ref: ReturnType<typeof doc>) => void
+
+  type BulkOp =
+    | { type: 'setStatus'; status: 'pending' | 'completed' }
+    | { type: 'delete' }
+    | { type: 'moveToProject'; projectId: string | null }
+    | { type: 'addTag'; tag: string }
+    | { type: 'removeTag'; tag: string }
+    | { type: 'patch'; patch: Partial<Task> }
+
+  interface BulkResult {
+    success: boolean
+    succeeded: number
+    failed: number
+    error?: string
+  }
+
+  const runBatchOp = async (ids: string[], op: BatchOp): Promise<BulkResult> => {
+    let succeeded = 0
+    let failed = 0
+    let firstError: string | undefined
+    for (const group of chunk(ids, BATCH_LIMIT)) {
+      const batch = writeBatch(db)
+      for (const id of group) op(batch, doc(db, 'tasks', id))
+      try {
+        await batch.commit()
+        succeeded += group.length
+      } catch (e: any) {
+        failed += group.length
+        if (!firstError) firstError = e?.message ?? 'Batch commit failed'
+      }
+    }
+    return { success: failed === 0, succeeded, failed, error: firstError }
+  }
+
+  const bulkApply = async (ids: string[], op: BulkOp): Promise<BulkResult> => {
+    if (!ids.length) return { success: true, succeeded: 0, failed: 0 }
+    const now = Timestamp.now()
+
+    if (op.type === 'setStatus' && op.status === 'completed') {
+      const recurringTemplates: Task[] = []
+      const simpleIds: string[] = []
+      for (const id of ids) {
+        const t = tasks.value.find(x => x.id === id)
+        if (!t) continue
+        if (t.recurrence && t.status === 'pending') recurringTemplates.push(t)
+        else simpleIds.push(id)
+      }
+      let recurringFailed = 0
+      for (const t of recurringTemplates) {
+        const r = await completeRecurringInstance(t)
+        if (r && !r.success) recurringFailed++
+      }
+      const simple = await runBatchOp(simpleIds, (batch, ref) =>
+        batch.update(ref, { status: 'completed', updatedAt: now }),
+      )
+      return {
+        success: recurringFailed === 0 && simple.success,
+        succeeded: simple.succeeded + (recurringTemplates.length - recurringFailed),
+        failed: simple.failed + recurringFailed,
+        error: simple.error,
+      }
+    }
+
+    if (op.type === 'setStatus') {
+      return runBatchOp(ids, (batch, ref) =>
+        batch.update(ref, { status: op.status, updatedAt: now }),
+      )
+    }
+    if (op.type === 'delete') {
+      return runBatchOp(ids, (batch, ref) => batch.delete(ref))
+    }
+    if (op.type === 'moveToProject') {
+      return runBatchOp(ids, (batch, ref) =>
+        batch.update(ref, { projectId: op.projectId, updatedAt: now }),
+      )
+    }
+    if (op.type === 'addTag') {
+      return runBatchOp(ids, (batch, ref) =>
+        batch.update(ref, { tags: arrayUnion(op.tag), updatedAt: now }),
+      )
+    }
+    if (op.type === 'removeTag') {
+      return runBatchOp(ids, (batch, ref) =>
+        batch.update(ref, { tags: arrayRemove(op.tag), updatedAt: now }),
+      )
+    }
+    if (op.type === 'patch') {
+      return runBatchOp(ids, (batch, ref) =>
+        batch.update(ref, { ...op.patch, updatedAt: now }),
+      )
+    }
+    return { success: false, succeeded: 0, failed: ids.length, error: 'Unsupported op' }
+  }
+
+  const bulkComplete = (ids: string[]) => bulkApply(ids, { type: 'setStatus', status: 'completed' })
+  const bulkUncomplete = (ids: string[]) => bulkApply(ids, { type: 'setStatus', status: 'pending' })
+  const bulkDelete = (ids: string[]) => bulkApply(ids, { type: 'delete' })
+  const bulkMoveToProject = (ids: string[], projectId: string | null) =>
+    bulkApply(ids, { type: 'moveToProject', projectId })
+  const bulkAddTag = (ids: string[], tag: string) => bulkApply(ids, { type: 'addTag', tag })
+  const bulkRemoveTag = (ids: string[], tag: string) => bulkApply(ids, { type: 'removeTag', tag })
+
   return {
     tasks,
     loading,
@@ -218,5 +332,12 @@ export const useTaskStore = defineStore('tasks', () => {
     tasksInRange,
     sortKey,
     computeDropOrder,
+    bulkApply,
+    bulkComplete,
+    bulkUncomplete,
+    bulkDelete,
+    bulkMoveToProject,
+    bulkAddTag,
+    bulkRemoveTag,
   }
 })
