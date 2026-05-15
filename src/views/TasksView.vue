@@ -147,7 +147,6 @@ const router = useRouter()
 
 const { mode, options, setMode, setOption } = useTaskViewMode()
 
-const persistKey = computed(() => `view:${mode.value}`)
 const tasksSource = computed(() => taskStore.tasks)
 
 const filters = useTaskFilters({

@@ -111,7 +111,6 @@ import {
   SunIcon,
   Squares2X2Icon,
   CalendarIcon,
-  CommandLineIcon,
   ListBulletIcon,
   ExclamationTriangleIcon,
   ViewColumnsIcon,
@@ -155,7 +154,6 @@ const listEl = ref<HTMLElement | null>(null)
 
 const MAX_PER_GROUP = 5
 
-const lower = (s: string | undefined | null) => (s ?? '').toLowerCase()
 const stripHtml = (html: string) => html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 
 const matches = (haystack: string, q: string) => haystack.toLowerCase().includes(q)

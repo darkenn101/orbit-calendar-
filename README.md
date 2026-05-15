@@ -7,12 +7,17 @@ A modern task management application built with Vue 3, Firebase, and Tailwind CS
 - **Authentication**: Secure login/signup using Firebase Auth
 - **Task Dashboard**: Create, edit, delete, and manage tasks
 - **Projects & Tags**: Group tasks into colored projects, attach free-form `#tags`, and filter the dashboard with one-click pills (deleting a project cascades to its tasks)
+- **Recurring Tasks**: Daily / weekly (multi-weekday) / monthly rules; future occurrences expand client-side, completion advances the template, series ends respect an optional end date
+- **Subtasks / Checklists**: Inline checklist per task; pill `done/total` indicator on the row, full editor in the modal
+- **NLP Quick-Add**: One-line capture parses natural language ("call Sam tomorrow 4pm #work") via chrono-node — live preview shows what will be created
+- **Drag-and-Drop**: Drag tasks between days on the calendar to reschedule (preserves time-of-day); drag within dashboard lists to reorder (sparse fractional indexing — no full list rewrite)
+- **Command Palette**: `⌘K` / `Ctrl K` opens a global search over tasks, notes, reminders, projects; tag-aware (`#work`); also surfaces actions like "Go to Calendar" and "Toggle theme"
+- **Dark Mode**: Three-mode toggle (System / Light / Dark) in the sidebar; semantic token system makes future redesigns a CSS variable swap
 - **Calendar Integration**: Visual calendar view with task mapping
 - **Reminders**: Automatic notifications for upcoming tasks
 - **Notes**: Rich-text notes with Tiptap (pin, search, delete)
 - **Offline-ready**: Firestore persistent local cache keeps reads working without a connection; mutations queue and sync on reconnect
 - **Installable PWA**: Web app manifest + service worker make Orbit installable on desktop and mobile, with cached static shell
-- **Dark-mode foundation**: Tailwind `class`-based dark mode with semantic CSS variables (toggle UI ships in a later phase)
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 
 ## Tech Stack
@@ -101,7 +106,27 @@ Mutations performed while offline queue locally and flush automatically once the
 
 ## Theming
 
-Tailwind is configured with `darkMode: 'class'` and semantic colors (`bg-surface`, `bg-elevated`, `text-ink`, `text-ink-muted`, `border-line`) backed by CSS variables in `src/assets/styles/main.css`. The shared component classes (`.card`, `.input`, `.btn-secondary`) and the page background already adapt when `<html>` has the `dark` class. A user-facing dark-mode toggle is planned alongside the per-view `dark:` variant sweep.
+Tailwind is configured with `darkMode: 'class'` and 8 semantic tokens backed by CSS variables in [`src/assets/styles/main.css`](./src/assets/styles/main.css):
+
+- **Surfaces:** `bg-surface`, `bg-elevated`, `bg-overlay`
+- **Text:** `text-ink`, `text-ink-muted`, `text-ink-subtle`
+- **Borders:** `border-line`, `border-line-strong`
+
+All views and components use these tokens for chrome (surfaces / text / borders); state colors (red/yellow/green/blue pills) stay as Tailwind utilities with explicit `dark:` variants. A redesign or new theme variant becomes a token-table edit, not a per-component rewrite.
+
+**Toggle UI**: bottom-left of the sidebar — three-mode dropdown (System / Light / Dark) backed by [`src/composables/useTheme.ts`](./src/composables/useTheme.ts). System mode follows `prefers-color-scheme` live; Light/Dark persist in `localStorage` under `orbit-theme`. The inline boot script in `src/main.ts` applies the saved theme before Vue mounts to avoid a flash of incorrect theme.
+
+## Command Palette
+
+`⌘K` (Mac) / `Ctrl K` (other) opens a global search:
+
+- **Searches** task titles, descriptions, tags, and subtask text; note titles + plain-text content; reminder titles + descriptions; project names.
+- **Tag-aware**: typing `#work` matches tasks with that tag; matched tags surface in the result subtitle.
+- **Actions** (visible with empty query): jump to any view, toggle theme.
+- **Keyboard**: ↑↓ to navigate (wraps), Enter to select, Esc to close.
+- **Search button** in the sidebar shows the platform-appropriate hotkey for users who prefer mouse.
+
+Implementation in [`src/components/CommandPalette.vue`](./src/components/CommandPalette.vue) + [`src/composables/useCommandPalette.ts`](./src/composables/useCommandPalette.ts). Substring match across in-memory store data — Firestore listeners are subscribed at the App level so the palette is always indexed.
 
 ## Project Structure
 
@@ -112,16 +137,17 @@ public/
 └── orbit.svg            # App icon
 
 src/
-├── components/          # Reusable Vue components
+├── components/          # Reusable Vue components (incl. CommandPalette, ThemeToggle)
 ├── views/               # Page components
 ├── stores/              # Pinia store modules (tasks, reminders, notes, projects, auth)
+├── composables/         # Reusable Composition API hooks (useTheme, useCommandPalette)
 ├── types/               # TypeScript type definitions
 ├── firebase/            # Firebase configuration (Firestore w/ persistent cache)
 ├── router/              # Vue Router setup
-├── utils/               # Pure helpers (e.g. projectColors)
+├── utils/               # Pure helpers (projectColors, recurrence expansion, etc.)
 ├── assets/              # Static assets and styles (theme CSS variables)
 ├── registerSW.ts        # Production-only service worker registration
-└── main.ts              # App entry point
+└── main.ts              # App entry point (inline theme boot script lives here)
 ```
 
 ## Key Components
@@ -131,14 +157,19 @@ src/
 - **CalendarView**: Interactive calendar with task visualization
 - **NotesView**: Two-pane notes browser with Tiptap rich-text editor
 - **RemindersView**: Dedicated reminders view (active / current / completed)
-- **TaskModal**: Add/edit task form (project, tags, due date, status)
+- **TaskModal**: Accordion-style task form (Details / Organize / Checklist / Repeats / Status); auto-expands sections that have content when editing
 - **ReminderModal**: Add/edit reminder form
-- **TaskItem**: Individual task row (project dot, tag chips, status toggle)
+- **TaskItem**: Individual task row (project dot, recurring `↻` icon, tag chips, subtask pill with expandable inline checklist, drag-to-reorder)
+- **QuickAddBar**: NLP-powered one-line capture with live preview
 - **ProjectPicker**: Dropdown with inline "new project" form (name + color swatch)
 - **TagInput**: Chip-style tag editor (Enter / comma to commit, Backspace to pop)
+- **SubtaskList**: Keyboard-friendly checklist editor (Enter adds row + focuses, Backspace on empty deletes)
+- **RecurrenceEditor**: Freq pills, interval, weekday picker, optional end date
 - **NoteEditor**: Tiptap-powered editor used by NotesView
 - **NotificationBar**: Foreground reminder/task toasts
-- **AppNavigation**: Side navigation menu
+- **CommandPalette**: Global ⌘K search + actions
+- **ThemeToggle**: System / Light / Dark dropdown
+- **AppNavigation**: Side navigation menu (Search button + ThemeToggle in user row)
 
 ## Contributing
 
